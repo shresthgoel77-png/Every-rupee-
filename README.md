@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/673117dc-5f80-4394-a019-4079f15b43e5" width="260"/>
+<img width="219" height="47" alt="image" src="https://github.com/user-attachments/assets/f395168e-a00e-48f7-967c-5a8f084daf8e" />
 
 # 💰 EveryRupee – AI-Powered Personal Finance Copilot
 
@@ -22,8 +22,7 @@ Millions of individuals struggle with budgeting, savings, investment decisions, 
 
 The platform acts as a **Financial Copilot**, enabling users to understand, manage, and grow their money with confidence. It simplifies complex financial concepts into clear, everyday language and adapts to each user’s income, goals .
 
----
-<img width="1901" height="896" alt="image" src="https://github.com/user-attachments/assets/3fb0420b-e608-4194-988f-8ef7cf1e6c56" />
+<img width="1899" height="902" alt="image" src="https://github.com/user-attachments/assets/20c8d173-2f39-47d2-b0f7-20efac7d1097" />
 
 **Demo video link** :- https://youtu.be/Y9z0WSJWY4s?si=jXGhDMl_M0XMZF_T
 
