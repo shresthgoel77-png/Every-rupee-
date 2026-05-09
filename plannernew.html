@@ -1,0 +1,132 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveryRupee | Smart Purchase Planner</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="plannernew.css">
+    <script src = "plannernew.js" defer></script>
+</head>
+<body>
+
+    <div class="er-planner-container">
+        <div class="er-header">
+            <h2>Smart Purchase Planner</h2>
+            <p>Optimize your high-value spends with data-driven insights.</p>
+        </div>
+
+        <div class="er-main-grid">
+            <div class="er-card er-input-section">
+                <div class="er-input-group">
+                    <label>Category</label>
+                    <select id="itemCategory" onchange="updateItemOptions()">
+                        <option value="electronics">Electronics</option>
+                        <option value="home">Home Appliances</option>
+                        <option value="travel">Travel & Lifestyle</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+
+                <div class="er-input-group">
+                    <label>Item</label>
+                    <select id="itemSubCategory"></select>
+                    <input type="text" id="itemCustomName" placeholder="Enter item name (e.g., Furniture, Course, Medical Expense)" style="display: none;">
+                </div>
+
+                <div class="er-input-group">
+                    <label>Purchase Price (₹)</label>
+                    <input type="number" id="purchasePrice" placeholder="e.g. 75000" min="0">
+                </div>
+
+                <div class="er-input-group">
+                    <label>Payment Method</label>
+                    <div class="er-radio-group">
+                        <label class="er-radio-tile">
+                            <input type="radio" name="payMethod" value="credit" checked>
+                            <span>Credit Card</span>
+                        </label>
+                        <label class="er-radio-tile">
+                            <input type="radio" name="payMethod" value="debit">
+                            <span>Debit Card</span>
+                        </label>
+                        <label class="er-radio-tile">
+                            <input type="radio" name="payMethod" value="cash">
+                            <span>UPI/Cash</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="er-btn-primary" onclick="analyzePurchase()">Analyze Best Deal</button>
+            </div>
+
+            <div class="er-results-column">
+                <div id="loader" class="er-loader" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analyzing market offers...</p>
+                </div>
+
+                <div id="resultCard" class="er-card er-output-card" style="display: none;">
+                    <div class="er-output-header">
+                        <h3>Financial Breakdown</h3>
+                        <span class="er-badge">Optimized</span>
+                    </div>
+
+                    <div class="er-breakdown-section">
+                        <div class="er-row"><span>Original Price</span><span id="resOriginal">₹0</span></div>
+                        <div class="er-row"><span>GST Component (<span id="resGstRate">18</span>%)</span><span id="resGstAmt">₹0</span></div>
+                        <div class="er-row er-text-green"><span>GST Savings (Input Tax)</span><span id="resGstSave">-₹0</span></div>
+                        <div class="er-row er-text-green"><span>Payment Discounts</span><span id="resPaySave">-₹0</span></div>
+                        <hr>
+                        <div class="er-row total-row">
+                            <span>Effective Cost</span>
+                            <span id="resFinal" class="er-text-green">₹0</span>
+                        </div>
+                    </div>
+
+                    <div id="smartInsight" class="er-insight-box">
+                        </div>
+                </div>
+
+                <div id="strategyCard" class="er-card er-strategy-card" style="display: none;">
+                    <h4>Best Payment Strategy</h4>
+                    <div id="bankOffers"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="er-card er-tips-section">
+            <h4>Smart Savings Strategies</h4>
+            <div class="er-tips-grid">
+                <div class="er-tip-item">
+                    <span>🗓️</span>
+                    <div>
+                        <h5>Wait for Sales</h5>
+                        <p>Electronics are 15% cheaper during Diwali and Republic Day sales.</p>
+                    </div>
+                </div>
+                <div class="er-tip-item">
+                    <span>💼</span>
+                    <div>
+                        <h5>GST Benefit</h5>
+                        <p>Purchase under a business GSTIN to claim 18% input tax credit.</p>
+                    </div>
+                </div>
+                <div class="er-tip-item">
+                    <span>💳</span>
+                    <div>
+                        <h5>No-Cost EMI</h5>
+                        <p>Maintain liquidity. High-value items (>₹50k) qualify for 0% interest.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

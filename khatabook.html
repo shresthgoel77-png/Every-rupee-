@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Khata Book</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="smart-khata-scanner">
+
+<style>
+/* ===========================
+   SMART KHATA SCANNER STYLES
+   =========================== */
+
+/* Reuse all root variables from parent — no redefinition needed */
+/* These styles are scoped to #smart-khata-scanner */
+
+#smart-khata-scanner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+  font-family: var(--font, 'Sora', sans-serif);
+}
+
+/* ---- Section Header ---- */
+#smart-khata-scanner .sks-section-header {
+  margin-bottom: 24px;
+}
+#smart-khata-scanner .sks-section-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary, #111827);
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#smart-khata-scanner .sks-section-sub {
+  font-size: 13px;
+  color: var(--text-muted, #9ca3af);
+  font-weight: 500;
+}
+
+/* ---- Mode Buttons Row ---- */
+#smart-khata-scanner .sks-mode-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+#smart-khata-scanner .sks-mode-btn {
+  flex: 1;
+  min-width: 160px;
+  padding: 14px 18px;
+  background: var(--card, #fff);
+  border: 2px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 14px);
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-secondary, #4b5563);
+  cursor: pointer;
+  transition: all 0.22s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.08));
+  letter-spacing: -0.1px;
+}
+#smart-khata-scanner .sks-mode-btn:hover {
+  border-color: var(--green, #16a34a);
+  color: var(--green, #16a34a);
+  background: var(--green-light, #dcfce7);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.10));
+}
+#smart-khata-scanner .sks-mode-btn.active {
+  border-color: var(--green, #16a34a);
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(22,163,74,0.35);
+  transform: translateY(-2px);
+}
+#smart-khata-scanner .sks-mode-btn .btn-icon {
+  font-size: 18px;
+}
+
+/* ---- Main Card ---- */
+#smart-khata-scanner .sks-card {
+  background: var(--card, #fff);
+  border-radius: var(--radius, 14px);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.10));
+  padding: 28px;
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+  animation: sksFadeIn 0.3s ease;
+}
+@keyframes sksFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Summary Cards (Analytics) ---- */
+#smart-khata-scanner .sks-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+#smart-khata-scanner .sks-summary-card {
+  background: linear-gradient(135deg, #f9fafb, #fff);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s;
+}
+#smart-khata-scanner .sks-summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+#smart-khata-scanner .sks-summary-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+#smart-khata-scanner .sks-summary-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-primary, #111827);
+  font-family: var(--mono, 'DM Mono', monospace);
+}
+#smart-khata-scanner .sks-summary-card.deficit {
+  border-color: var(--red, #dc2626);
+  background: linear-gradient(135deg, #fee2e2, #fff);
+}
+#smart-khata-scanner .sks-summary-card.deficit .sks-summary-value {
+  color: var(--red, #dc2626);
+}
+#smart-khata-scanner .sks-summary-card.surplus {
+  border-color: var(--green, #16a34a);
+  background: linear-gradient(135deg, #dcfce7, #fff);
+}
+#smart-khata-scanner .sks-summary-card.surplus .sks-summary-value {
+  color: var(--green, #16a34a);
+}
+
+/* ---- Charts Container ---- */
+#smart-khata-scanner .sks-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+#smart-khata-scanner .sks-chart-card {
+  background: var(--card, #fff);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 20px;
+}
+#smart-khata-scanner .sks-chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin-bottom: 16px;
+}
+#smart-khata-scanner .sks-chart-canvas {
+  position: relative;
+  height: 280px;
+}
+
+/* ---- Upload Zone ---- */
+#smart-khata-scanner .sks-upload-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: var(--radius, 14px);
+  padding: 40px 24px;
+  text-align: center;
+  background: #fafafa;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+#smart-khata-scanner .sks-upload-zone:hover,
+#smart-khata-scanner .sks-upload-zone.dragging {
+  border-color: var(--green, #16a34a);
+  background: var(--green-light, #dcfce7);
+}
+#smart-khata-scanner .sks-upload-circle {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: var(--green-light, #dcfce7);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 28px;
+  transition: transform 0.2s;
+}
+#smart-khata-scanner .sks-upload-zone:hover .sks-upload-circle {
+  transform: scale(1.08);
+}
+#smart-khata-scanner .sks-upload-title {
+  font-size: 15px; font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin-bottom: 5px;
+}
+#smart-khata-scanner .sks-upload-hint {
+  font-size: 12px;
+  color: var(--text-muted, #9ca3af);
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+#smart-khata-scanner .sks-btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#smart-khata-scanner .sks-btn-upload {
+  background: transparent;
+  border: 1.5px solid var(--green, #16a34a);
+  color: var(--green, #16a34a);
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#smart-khata-scanner .sks-btn-upload:hover {
+  background: var(--green, #16a34a);
+  color: white;
+}
+#smart-khata-scanner input[type="file"] { display: none; }
+
+/* ---- Image Preview ---- */
+#smart-khata-scanner .sks-preview-wrap {
+  border-radius: var(--radius-sm, 8px);
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+  background: #f3f4f6;
+  border: 1px solid var(--border, #e5e7eb);
+}
+#smart-khata-scanner .sks-preview-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+#smart-khata-scanner .sks-preview-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ---- OCR Progress ---- */
+#smart-khata-scanner .sks-progress-wrap {
+  background: var(--bg, #D6D1C8);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+#smart-khata-scanner .sks-progress-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-secondary, #4b5563);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#smart-khata-scanner .sks-progress-track {
+  background: #fff;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+#smart-khata-scanner .sks-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green, #16a34a), #4ade80);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.35s ease;
+}
+#smart-khata-scanner .sks-spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted, #9ca3af);
+  font-weight: 500;
+}
+#smart-khata-scanner .sks-spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--green-light, #dcfce7);
+  border-top-color: var(--green, #16a34a);
+  border-radius: 50%;
+  animation: sksSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes sksSpin { to { transform: rotate(360deg); } }
+
+/* ---- Confidence Alert ---- */
+#smart-khata-scanner .sks-confidence-alert {
+  background: var(--amber-light, #fef3c7);
+  border: 1.5px solid var(--amber, #d97706);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--amber, #d97706);
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: sksFadeIn 0.3s ease;
+}
+#smart-khata-scanner .sks-confidence-alert button {
+  margin-left: auto;
+  background: var(--amber, #d97706);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---- Parsed Results Table ---- */
+#smart-khata-scanner .sks-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+#smart-khata-scanner .sks-table-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+}
+#smart-khata-scanner .sks-confidence-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--green-light, #dcfce7);
+  color: var(--green, #16a34a);
+}
+#smart-khata-scanner .sks-confidence-badge.low {
+  background: var(--amber-light, #fef3c7);
+  color: var(--amber, #d97706);
+}
+#smart-khata-scanner .sks-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--border, #e5e7eb);
+  margin-bottom: 18px;
+}
+#smart-khata-scanner .sks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+#smart-khata-scanner .sks-table thead tr {
+  background: #f9fafb;
+}
+#smart-khata-scanner .sks-table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+#smart-khata-scanner .sks-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f3f4f6;
+  color: var(--text-primary, #111827);
+  font-size: 13.5px;
+  vertical-align: middle;
+}
+#smart-khata-scanner .sks-table tr:last-child td { border-bottom: none; }
+#smart-khata-scanner .sks-table tr:hover td { background: #fafafa; }
+#smart-khata-scanner .sks-table td input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--green, #16a34a);
+  cursor: pointer;
+}
+#smart-khata-scanner .sks-table td input[type="text"],
+#smart-khata-scanner .sks-table td input[type="number"],
+#smart-khata-scanner .sks-table td select {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 13px;
+  color: var(--text-primary, #111827);
+  background: #fff;
+  width: 100%;
+  min-width: 80px;
+  outline: none;
+}
+#smart-khata-scanner .sks-table td input:focus,
+#smart-khata-scanner .sks-table td select:focus {
+  border-color: var(--green, #16a34a);
+}
+
+/* ---- Type Badges ---- */
+#smart-khata-scanner .badge-udhaar {
+  background: var(--red-light, #fee2e2);
+  color: var(--red, #dc2626);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-block;
+}
+#smart-khata-scanner .badge-jama {
+  background: var(--green-light, #dcfce7);
+  color: var(--green, #16a34a);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* ---- Action Buttons ---- */
+#smart-khata-scanner .sks-btn-analyze {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 0.2px;
+  box-shadow: 0 4px 16px rgba(22,163,74,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+#smart-khata-scanner .sks-btn-analyze:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(22,163,74,0.45);
+}
+#smart-khata-scanner .sks-btn-analyze:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+#smart-khata-scanner .sks-btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--border, #e5e7eb);
+  color: var(--text-secondary, #4b5563);
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#smart-khata-scanner .sks-btn-secondary:hover {
+  border-color: var(--green, #16a34a);
+  color: var(--green, #16a34a);
+}
+#smart-khata-scanner .sks-btn-danger {
+  background: var(--red-light, #fee2e2);
+  border: none;
+  color: var(--red, #dc2626);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#smart-khata-scanner .sks-btn-danger:hover { background: var(--red, #dc2626); color: #fff; }
+#smart-khata-scanner .sks-btn-edit {
+  background: var(--blue-light, #dbeafe);
+  border: none;
+  color: var(--blue, #2563eb);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#smart-khata-scanner .sks-btn-edit:hover { background: var(--blue, #2563eb); color: #fff; }
+
+/* ---- Manual / Edit Form ---- */
+#smart-khata-scanner .sks-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+#smart-khata-scanner .sks-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#smart-khata-scanner .sks-form-group.full {
+  grid-column: 1 / -1;
+}
+#smart-khata-scanner .sks-form-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary, #4b5563);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+#smart-khata-scanner .sks-form-input {
+  padding: 11px 14px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 14px;
+  color: var(--text-primary, #111827);
+  background: white;
+  transition: border-color 0.2s;
+  outline: none;
+  width: 100%;
+}
+#smart-khata-scanner .sks-form-input:focus {
+  border-color: var(--green, #16a34a);
+  box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
+}
+#smart-khata-scanner .sks-form-hint {
+  font-size: 11px;
+  color: var(--text-muted, #9ca3af);
+}
+#smart-khata-scanner .sks-form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ---- Empty State ---- */
+#smart-khata-scanner .sks-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted, #9ca3af);
+  font-size: 13.5px;
+}
+#smart-khata-scanner .sks-empty-icon { font-size: 36px; margin-bottom: 10px; }
+#smart-khata-scanner .sks-empty-text { font-weight: 600; }
+
+/* ---- OCR Raw Text ---- */
+#smart-khata-scanner .sks-raw-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted, #9ca3af);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: var(--font, 'Sora', sans-serif);
+  margin-top: 6px;
+  display: inline-block;
+}
+#smart-khata-scanner .sks-raw-box {
+  background: #f3f4f6;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: var(--mono, 'DM Mono', monospace);
+  font-size: 11.5px;
+  color: var(--text-secondary, #4b5563);
+  white-space: pre-wrap;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 8px;
+  line-height: 1.7;
+}
+
+/* ---- Toast ---- */
+#sks-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.sks-toast-msg {
+  background: #111827;
+  color: #fff;
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-family: var(--font, 'Sora', sans-serif);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: sksToastIn 0.35s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events: auto;
+  max-width: 340px;
+}
+.sks-toast-msg.success .sks-toast-dot { background: #4ade80; }
+.sks-toast-msg.error .sks-toast-dot { background: var(--red, #dc2626); }
+.sks-toast-msg.info .sks-toast-dot { background: #60a5fa; }
+.sks-toast-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+@keyframes sksToastIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes sksToastOut {
+  to { opacity: 0; transform: translateX(40px) scale(0.9); }
+}
+
+/* ---- Divider ---- */
+#smart-khata-scanner .sks-divider {
+  height: 1px;
+  background: var(--border, #e5e7eb);
+  margin: 20px 0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  #smart-khata-scanner .sks-mode-row { flex-direction: column; }
+  #smart-khata-scanner .sks-mode-btn { min-width: 100%; }
+  #smart-khata-scanner .sks-form-grid { grid-template-columns: 1fr 1fr; }
+  #smart-khata-scanner .sks-form-group.full { grid-column: 1 / -1; }
+  #smart-khata-scanner .sks-summary-grid { grid-template-columns: 1fr; }
+  #smart-khata-scanner .sks-charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  #smart-khata-scanner .sks-form-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="sks-toast"></div>
+
+<!-- ===== SECTION HEADER ===== -->
+<div class="sks-section-header">
+  <div class="sks-section-title">📸 Smart Khata Input</div>
+  <div class="sks-section-sub">Scan bills &amp; pages with OCR, or enter transactions manually — all synced to your ledger</div>
+</div>
+
+<!-- ===== MODE BUTTONS ===== -->
+<div class="sks-mode-row" id="sks-mode-row">
+  <button class="sks-mode-btn active" data-mode="single" onclick="sksSetMode('single')">
+    <span class="btn-icon">📸</span> Scan Single Bill
+  </button>
+  <button class="sks-mode-btn" data-mode="fullpage" onclick="sksSetMode('fullpage')">
+    <span class="btn-icon">📖</span> Scan Full Khata Page
+  </button>
+  <button class="sks-mode-btn" data-mode="manual" onclick="sksSetMode('manual')">
+    <span class="btn-icon">✍️</span> Manual Entry
+  </button>
+  <button class="sks-mode-btn" data-mode="edit" onclick="sksSetMode('edit')">
+    <span class="btn-icon">✏️</span> Edit Existing Entries
+  </button>
+  <button class="sks-mode-btn" data-mode="analysis" onclick="sksSetMode('analysis')">
+    <span class="btn-icon">📊</span> Deep Analytics
+  </button>
+  <button class="sks-mode-btn" data-mode="invoice" onclick="sksSetMode('invoice')">
+    <span class="btn-icon">📋</span> GST Invoice Gen
+  </button>
+</div>
+
+<!-- ===== SCAN PANEL (Single Bill + Full Khata Page) ===== -->
+<div class="sks-card" id="sks-scan-panel">
+
+  <!-- Upload Zone -->
+  <div class="sks-upload-zone" id="sks-drop-zone"
+       ondragover="sksDragOver(event)" ondragleave="sksDragLeave(event)" ondrop="sksDrop(event)"
+       onclick="document.getElementById('sks-file-gallery').click()">
+    <div class="sks-upload-circle" id="sks-upload-icon">📷</div>
+    <div class="sks-upload-title" id="sks-upload-title">Drop your image here, or choose a source</div>
+    <div class="sks-upload-hint" id="sks-upload-hint">Supports JPG, PNG, HEIC • Max 15MB<br>Works with printed bills, handwritten khata pages</div>
+    <div class="sks-btn-row" onclick="event.stopPropagation()">
+      <button class="sks-btn-upload" onclick="document.getElementById('sks-file-gallery').click()">🖼️ Gallery / File</button>
+      <button class="sks-btn-upload" onclick="document.getElementById('sks-file-camera').click()">📷 Camera</button>
+    </div>
+    <input type="file" id="sks-file-gallery" accept="image/*" onchange="sksHandleFile(this)">
+    <input type="file" id="sks-file-camera" accept="image/*" capture="environment" onchange="sksHandleFile(this)">
+  </div>
+
+  <!-- Image Preview -->
+  <div class="sks-preview-wrap" id="sks-preview-wrap" style="display:none">
+    <img class="sks-preview-img" id="sks-preview-img" src="" alt="Preview">
+    <div class="sks-preview-badge" id="sks-preview-badge">Ready to Scan</div>
+    <button style="position:absolute;top:8px;left:10px;background:rgba(0,0,0,0.45);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="sksClearImage()">✕</button>
+  </div>
+
+  <!-- OCR Progress -->
+  <div class="sks-progress-wrap" id="sks-progress-wrap" style="display:none">
+    <div class="sks-progress-label">
+      <span id="sks-progress-step">Initialising OCR engine…</span>
+      <span id="sks-progress-pct" style="color:var(--green);">0%</span>
+    </div>
+    <div class="sks-progress-track">
+      <div class="sks-progress-fill" id="sks-progress-fill"></div>
+    </div>
+    <div class="sks-spinner-row">
+      <div class="sks-spinner"></div>
+      <span id="sks-progress-detail">Please wait — this takes 10–30 seconds on first load</span>
+    </div>
+  </div>
+
+  <!-- Low Confidence Alert -->
+  <div class="sks-confidence-alert" id="sks-low-conf-alert" style="display:none">
+    ⚠️ OCR confidence is low. Results may be inaccurate.
+    <button onclick="sksSetMode('manual')">Switch to Manual Entry</button>
+  </div>
+
+  <!-- Scan Button -->
+  <button class="sks-btn-analyze" id="sks-scan-btn" onclick="sksStartOCR()" disabled>
+    <span>🔍</span> <span id="sks-scan-btn-label">Select an image to scan</span>
+  </button>
+
+  <!-- Parsed Results -->
+  <div id="sks-results-area" style="display:none;margin-top:24px;">
+    <div class="sks-divider"></div>
+    <div class="sks-table-header">
+      <div>
+        <div class="sks-table-title">✅ Parsed Transactions</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Review, edit inline, then add selected to ledger</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <span class="sks-confidence-badge" id="sks-conf-badge"></span>
+        <button class="sks-raw-toggle" onclick="sksToggleRaw()">Show raw OCR text</button>
+      </div>
+    </div>
+    <div class="sks-raw-box" id="sks-raw-box" style="display:none;margin-bottom:14px;"></div>
+    <div class="sks-table-wrap">
+      <table class="sks-table" id="sks-parsed-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="sks-chk-all" onchange="sksToggleAll(this)" title="Select all"></th>
+            <th>Date</th>
+            <th>Party Name</th>
+            <th>Description</th>
+            <th>Amount ₹</th>
+            <th>Type</th>
+            <th>GSTIN</th>
+          </tr>
+        </thead>
+        <tbody id="sks-parsed-tbody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="sks-btn-analyze" style="width:auto;flex:1;" onclick="sksAddSelected()">
+        ➕ Add Selected to Khata
+      </button>
+      <button class="sks-btn-secondary" onclick="sksClearResults()">🗑️ Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MANUAL ENTRY PANEL ===== -->
+<div class="sks-card" id="sks-manual-panel" style="display:none">
+  <div class="sks-section-title" style="font-size:16px;margin-bottom:18px;">✍️ Manual Transaction Entry</div>
+  <div class="sks-form-grid" id="sks-manual-form-grid">
+    <div class="sks-form-group">
+      <label class="sks-form-label">Date *</label>
+      <input type="date" class="sks-form-input" id="sks-m-date" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Party Name *</label>
+      <input type="text" class="sks-form-input" id="sks-m-party" placeholder="Ramesh Kumar" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Amount ₹ *</label>
+      <input type="number" class="sks-form-input" id="sks-m-amount" placeholder="0.00" min="0" step="0.01" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Type *</label>
+      <select class="sks-form-input" id="sks-m-type">
+        <option value="Udhaar">🔴 Udhaar (You gave credit)</option>
+        <option value="Jama">🟢 Jama (You received)</option>
+      </select>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Description</label>
+      <input type="text" class="sks-form-input" id="sks-m-desc" placeholder="Grocery bill, service charge…">
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">GSTIN <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+      <input type="text" class="sks-form-input" id="sks-m-gstin" placeholder="22AAAAA0000A1Z5" maxlength="15"
+             oninput="this.value=this.value.toUpperCase()">
+      <span class="sks-form-hint">15-character GST number of the party</span>
+    </div>
+  </div>
+  <div class="sks-form-actions">
+    <button class="sks-btn-analyze" style="flex:1;" onclick="sksSubmitManual()">
+      <span id="sks-m-btn-icon">➕</span> <span id="sks-m-btn-label">Add to Khata</span>
+    </button>
+    <button class="sks-btn-secondary" onclick="sksCancelEdit()">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== EDIT EXISTING ENTRIES PANEL ===== -->
+<div class="sks-card" id="sks-edit-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+    <div class="sks-section-title" style="font-size:16px;">✏️ All Khata Transactions</div>
+    <div style="font-size:12.5px;color:var(--text-muted);" id="sks-edit-count">0 entries</div>
+  </div>
+  <div id="sks-edit-empty" class="sks-empty">
+    <div class="sks-empty-icon">📋</div>
+    <div class="sks-empty-text">No transactions yet</div>
+    <div style="margin-top:6px;font-size:12px;">Add some via Scan or Manual Entry</div>
+  </div>
+  <div class="sks-table-wrap" id="sks-edit-table-wrap" style="display:none;">
+    <table class="sks-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Party</th>
+          <th>Description</th>
+          <th>Amount ₹</th>
+          <th>Type</th>
+          <th>GSTIN</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sks-edit-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DEEP ANALYTICS DASHBOARD PANEL ===== -->
+<div class="sks-card" id="sks-analysis-panel" style="display:none">
+  <div class="sks-section-title" style="font-size:16px;margin-bottom:24px;">📊 Deep Analytics Dashboard</div>
+  
+  <!-- Summary Cards -->
+  <div class="sks-summary-grid" id="sks-summary-grid">
+    <div class="sks-summary-card">
+      <div class="sks-summary-label">Total Jama (Money In)</div>
+      <div class="sks-summary-value" id="sks-total-jama">₹0</div>
+    </div>
+    <div class="sks-summary-card">
+      <div class="sks-summary-label">Total Udhaar (Pending Out)</div>
+      <div class="sks-summary-value" id="sks-total-udhaar">₹0</div>
+    </div>
+    <div class="sks-summary-card" id="sks-net-balance-card">
+      <div class="sks-summary-label">Net Balance</div>
+      <div class="sks-summary-value" id="sks-net-balance">₹0</div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="sks-charts-grid">
+    <!-- Doughnut Chart -->
+    <div class="sks-chart-card">
+      <div class="sks-chart-title">Jama vs Udhaar Distribution</div>
+      <div class="sks-chart-canvas">
+        <canvas id="sks-doughnut-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Bar Chart (Top 5 Pending Debts) -->
+    <div class="sks-chart-card">
+      <div class="sks-chart-title">Top 5 Pending Debts (Grouped by Party)</div>
+      <div class="sks-chart-canvas">
+        <canvas id="sks-bar-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GST INVOICE GENERATOR PANEL ===== -->
+<div class="sks-card" id="sks-invoice-panel" style="display:none">
+  <div class="sks-section-title" style="font-size:16px;margin-bottom:18px;">📋 GST Invoice Generator</div>
+  <div class="sks-form-grid">
+    <div class="sks-form-group">
+      <label class="sks-form-label">Customer Name *</label>
+      <input type="text" class="sks-form-input" id="sks-inv-customer" placeholder="John Doe" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Customer Email *</label>
+      <input type="email" class="sks-form-input" id="sks-inv-email" placeholder="john@example.com" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">GSTIN <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+      <input type="text" class="sks-form-input" id="sks-inv-gstin" placeholder="22AAAAA0000A1Z5" maxlength="15"
+             oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="sks-form-group full">
+      <label class="sks-form-label">Item/Service Description *</label>
+      <input type="text" class="sks-form-input" id="sks-inv-description" placeholder="e.g., Consulting Services, Product Delivery" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">Base Amount (₹) *</label>
+      <input type="number" class="sks-form-input" id="sks-inv-base-amount" placeholder="1000.00" min="0" step="0.01" required>
+    </div>
+    <div class="sks-form-group">
+      <label class="sks-form-label">GST Rate %</label>
+      <select class="sks-form-input" id="sks-inv-gst-rate">
+        <option value="0">0% (Exempt)</option>
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18" selected>18%</option>
+        <option value="28">28%</option>
+      </select>
+    </div>
+  </div>
+  <div class="sks-form-actions">
+    <button class="sks-btn-analyze" style="flex:1;" onclick="sksGenerateInvoiceEmail()">
+      📧 Generate & Send Invoice
+    </button>
+    <button class="sks-btn-secondary" onclick="sksResetInvoiceForm()">Clear Form</button>
+  </div>
+</div>
+
+<script>
+/* ==============================================
+   PREMIUM SMART KHATA SCANNER — LOGIC
+   ============================================== */
+
+// ─── Global State ───────────────────────────────
+window.myKhataTransactions = window.myKhataTransactions || [];
+
+let sksCurrentMode   = 'single';
+let sksCurrentImage  = null;   // data URL
+let sksOCRResult     = null;   // { text, confidence }
+let sksParsedRows    = [];     // Array of parsed transaction objects
+let sksEditingIndex  = null;   // null = new, number = editing
+let sksTesseractReady = false;
+let sksChartInstances = {};   // Store Chart.js instances for cleanup
+
+// ─── Mode Switching ──────────────────────────────
+function sksSetMode(mode) {
+  sksCurrentMode = mode;
+  // Update buttons
+  document.querySelectorAll('#sks-mode-row .sks-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  // Panel visibility
+  document.getElementById('sks-scan-panel').style.display   = ['single','fullpage'].includes(mode) ? '' : 'none';
+  document.getElementById('sks-manual-panel').style.display = mode === 'manual' ? '' : 'none';
+  document.getElementById('sks-edit-panel').style.display   = mode === 'edit'   ? '' : 'none';
+  document.getElementById('sks-analysis-panel').style.display = mode === 'analysis' ? '' : 'none';
+  document.getElementById('sks-invoice-panel').style.display = mode === 'invoice' ? '' : 'none';
+
+  // Update scan panel label
+  if (mode === 'single') {
+    document.getElementById('sks-upload-title').textContent = 'Drop a single bill or receipt';
+    document.getElementById('sks-upload-hint').textContent  = 'Works with printed receipts, invoices, handwritten bills • JPG / PNG';
+    document.getElementById('sks-upload-icon').textContent  = '📸';
+  } else if (mode === 'fullpage') {
+    document.getElementById('sks-upload-title').textContent = 'Drop a full khata page photo';
+    document.getElementById('sks-upload-hint').textContent  = 'Ideal for multi-entry handwritten khata pages • Hold phone steady for best OCR';
+    document.getElementById('sks-upload-icon').textContent  = '📖';
+  }
+
+  if (mode === 'manual') {
+    sksResetManualForm();
+    sksEditingIndex = null;
+    document.getElementById('sks-m-btn-icon').textContent = '➕';
+    document.getElementById('sks-m-btn-label').textContent = 'Add to Khata';
+  }
+  if (mode === 'edit') {
+    sksRenderEditTable();
+  }
+  if (mode === 'analysis') {
+    sksRenderAnalysis();
+  }
+}
+
+// ─── File Handling ───────────────────────────────
+function sksHandleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { sksToast('Please select an image file', 'error'); return; }
+  if (file.size > 15 * 1024 * 1024)   { sksToast('Image too large — max 15 MB', 'error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    sksCurrentImage = e.target.result;
+    // Show preview
+    document.getElementById('sks-preview-img').src = sksCurrentImage;
+    document.getElementById('sks-preview-wrap').style.display = '';
+    document.getElementById('sks-preview-badge').textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+    // Enable scan button
+    document.getElementById('sks-scan-btn').disabled = false;
+    document.getElementById('sks-scan-btn-label').textContent = 'Start OCR Scan';
+    // Hide previous results
+    document.getElementById('sks-results-area').style.display = 'none';
+    document.getElementById('sks-low-conf-alert').style.display = 'none';
+    // Reset input so same file can be reselected
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function sksDragOver(e) {
+  e.preventDefault();
+  document.getElementById('sks-drop-zone').classList.add('dragging');
+}
+function sksDragLeave(e) {
+  document.getElementById('sks-drop-zone').classList.remove('dragging');
+}
+function sksDrop(e) {
+  e.preventDefault();
+  document.getElementById('sks-drop-zone').classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    // Create a fake file-input like object
+    const fakeInput = { files: [file], value: '' };
+    sksHandleFile(fakeInput);
+  }
+}
+
+function sksClearImage() {
+  sksCurrentImage = null;
+  document.getElementById('sks-preview-wrap').style.display = 'none';
+  document.getElementById('sks-scan-btn').disabled = true;
+  document.getElementById('sks-scan-btn-label').textContent = 'Select an image to scan';
+  document.getElementById('sks-results-area').style.display = 'none';
+  document.getElementById('sks-low-conf-alert').style.display = 'none';
+  document.getElementById('sks-progress-wrap').style.display = 'none';
+}
+
+// ─── OCR ─────────────────────────────────────────
+async function sksStartOCR() {
+  if (!sksCurrentImage) return;
+
+  const btn = document.getElementById('sks-scan-btn');
+  btn.disabled = true;
+  document.getElementById('sks-scan-btn-label').textContent = 'Scanning…';
+  document.getElementById('sks-progress-wrap').style.display = '';
+  document.getElementById('sks-results-area').style.display = 'none';
+  document.getElementById('sks-low-conf-alert').style.display = 'none';
+  sksSetProgress(0, 'Loading OCR engine…', 'This may take 10–30 seconds on first load');
+
+  try {
+    // Load Tesseract.js if not already loaded
+    if (!window.Tesseract) {
+      await sksLoadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    }
+
+    const worker = await Tesseract.createWorker('eng+hin', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const pct = Math.round((m.progress || 0) * 100);
+          sksSetProgress(pct, 'Recognising text…', `${pct}% complete`);
+        } else if (m.status === 'loading tesseract core') {
+          sksSetProgress(10, 'Loading OCR core…', m.status);
+        } else if (m.status === 'loading language traineddata') {
+          sksSetProgress(25, 'Loading Hindi + English language data…', m.status);
+        } else if (m.status === 'initializing tesseract') {
+          sksSetProgress(40, 'Initialising OCR engine…', m.status);
+        }
+      }
+    });
+
+    sksSetProgress(50, 'Sending image to OCR engine…', 'Processing your image');
+
+    const { data } = await worker.recognize(sksCurrentImage);
+    await worker.terminate();
+
+    sksSetProgress(100, 'Done!', 'Parsing results…');
+
+    sksOCRResult = {
+      text: data.text,
+      confidence: data.confidence
+    };
+
+    setTimeout(() => {
+      document.getElementById('sks-progress-wrap').style.display = 'none';
+      sksParseAndShow(data.text, data.confidence);
+      btn.disabled = false;
+      document.getElementById('sks-scan-btn-label').textContent = '🔁 Re-scan';
+    }, 600);
+
+  } catch (err) {
+    console.error('OCR Error:', err);
+    document.getElementById('sks-progress-wrap').style.display = 'none';
+    btn.disabled = false;
+    document.getElementById('sks-scan-btn-label').textContent = 'Start OCR Scan';
+    sksToast('OCR failed: ' + err.message, 'error');
+  }
+}
+
+function sksLoadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function sksSetProgress(pct, step, detail) {
+  document.getElementById('sks-progress-fill').style.width = pct + '%';
+  document.getElementById('sks-progress-step').textContent = step;
+  document.getElementById('sks-progress-pct').textContent  = pct + '%';
+  document.getElementById('sks-progress-detail').textContent = detail || '';
+}
+
+// ─── Parsing ─────────────────────────────────────
+function sksParseAndShow(rawText, confidence) {
+  // Show raw text for reference
+  document.getElementById('sks-raw-box').textContent = rawText;
+
+  // Low confidence warning
+  if (confidence < 65) {
+    document.getElementById('sks-low-conf-alert').style.display = 'flex';
+  }
+
+  // Confidence badge
+  const confBadge = document.getElementById('sks-conf-badge');
+  confBadge.textContent = `Confidence: ${confidence.toFixed(1)}%`;
+  confBadge.className = 'sks-confidence-badge' + (confidence < 65 ? ' low' : '');
+
+  if (sksCurrentMode === 'single') {
+    sksParsedRows = [sksParseSingleBill(rawText)];
+  } else {
+    sksParsedRows = sksParseFullPage(rawText);
+  }
+
+  if (sksParsedRows.length === 0) {
+    sksParsedRows = [{ date: sksToday(), party: '', desc: rawText.substring(0, 80).replace(/\n/g,' '), amount: '', type: 'Udhaar', gstin: '' }];
+  }
+
+  sksRenderParsedTable(sksParsedRows);
+  document.getElementById('sks-results-area').style.display = '';
+}
+
+function sksParseSingleBill(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // Amount: look for total / grand total / amount
+  let amount = '';
+  for (const line of lines) {
+    const m = line.match(/(?:total|grand\s*total|amount|amt|net|payable)[^\d]*(\d[\d,]*\.?\d*)/i);
+    if (m) { amount = m[1].replace(/,/g,''); break; }
+  }
+  if (!amount) {
+    // fallback: largest number
+    const nums = text.match(/\d[\d,]*\.?\d*/g) || [];
+    const parsed = nums.map(n => parseFloat(n.replace(/,/g,''))).filter(n => n > 0);
+    if (parsed.length) amount = String(Math.max(...parsed));
+  }
+
+  // Date
+  let date = sksExtractDate(text) || sksToday();
+
+  // Party / shop name — first non-empty line
+  let party = lines[0] || 'Unknown';
+  // Description — second line or 'Bill'
+  let desc  = lines[1] || 'Bill';
+
+  // GSTIN
+  let gstin = (text.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/) || [])[0] || '';
+
+  // Type guess
+  let type = 'Udhaar';
+  if (/received|credit|payment\s*received|jama|जमा/i.test(text)) type = 'Jama';
+
+  return { date, party, desc, amount, type, gstin };
+}
+
+function sksParseFullPage(text) {
+  const rows = [];
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // Strategy: each line that contains a number is likely a transaction
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const amtMatch = line.match(/(\d[\d,]*\.?\d*)\s*(?:₹|Rs\.?|INR)?/);
+    if (!amtMatch) continue;
+    const amount = amtMatch[1].replace(/,/g,'');
+    if (parseFloat(amount) < 1) continue; // skip noise
+
+    // Party: word before amount on same line
+    const beforeAmt = line.substring(0, amtMatch.index).trim();
+    const party = beforeAmt.split(/\s{2,}|\t/).pop() || beforeAmt || 'Party ' + (rows.length + 1);
+
+    // Date from same line or previous
+    const date = sksExtractDate(line) || sksExtractDate(lines[i-1] || '') || sksToday();
+
+    // Description: remainder
+    const afterAmt = line.substring(amtMatch.index + amtMatch[0].length).trim();
+    const desc = afterAmt || beforeAmt || 'Transaction';
+
+    // Type guess
+    let type = 'Udhaar';
+    if (/cr\b|credit|jama|जमा|\+/i.test(line)) type = 'Jama';
+
+    rows.push({ date, party: party.substring(0,40), desc: desc.substring(0,60), amount, type, gstin: '' });
+  }
+
+  return rows.length ? rows : [];
+}
+
+function sksExtractDate(text) {
+  // Try various date formats
+  const patterns = [
+    /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/,  // DD/MM/YYYY
+    /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/,    // YYYY-MM-DD
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) {
+      try {
+        let y = m[3] ? (m[3].length === 2 ? '20'+m[3] : m[3]) : m[1];
+        let mo = m[3] ? m[2] : m[2];
+        let d  = m[3] ? m[1] : m[3];
+        if (!m[3]) { y = m[1]; mo = m[2]; d = '01'; } // YYYY-MM
+        const date = new Date(`${y}-${String(mo).padStart(2,'0')}-${String(d||'01').padStart(2,'0')}`);
+        if (!isNaN(date)) return date.toISOString().split('T')[0];
+      } catch(e) {}
+    }
+  }
+  return null;
+}
+
+function sksToday() {
+  return new Date().toISOString().split('T')[0];
+}
+
+// ─── Parsed Table Render ─────────────────────────
+function sksRenderParsedTable(rows) {
+  const tbody = document.getElementById('sks-parsed-tbody');
+  tbody.innerHTML = '';
+  rows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="checkbox" class="sks-row-chk" data-index="${i}" checked></td>
+      <td><input type="date" value="${row.date||''}" onchange="sksParsedRows[${i}].date=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:130px;"></td>
+      <td><input type="text" value="${sksEsc(row.party)}" placeholder="Party name" onchange="sksParsedRows[${i}].party=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:120px;"></td>
+      <td><input type="text" value="${sksEsc(row.desc)}" placeholder="Description" onchange="sksParsedRows[${i}].desc=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:120px;"></td>
+      <td><input type="number" value="${row.amount||''}" placeholder="0.00" onchange="sksParsedRows[${i}].amount=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:90px;"></td>
+      <td>
+        <select onchange="sksParsedRows[${i}].type=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:110px;">
+          <option value="Udhaar" ${row.type==='Udhaar'?'selected':''}>🔴 Udhaar</option>
+          <option value="Jama"   ${row.type==='Jama'  ?'selected':''}>🟢 Jama</option>
+        </select>
+      </td>
+      <td><input type="text" value="${sksEsc(row.gstin)}" placeholder="Optional" maxlength="15" oninput="this.value=this.value.toUpperCase();sksParsedRows[${i}].gstin=this.value" class="sks-form-input" style="padding:5px 8px;font-size:12.5px;min-width:130px;"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sksToggleAll(masterChk) {
+  document.querySelectorAll('.sks-row-chk').forEach(c => c.checked = masterChk.checked);
+}
+
+function sksToggleRaw() {
+  const box = document.getElementById('sks-raw-box');
+  box.style.display = box.style.display === 'none' ? '' : 'none';
+}
+
+// ─── Add to Khata ─────────────────────────────────
+function sksAddSelected() {
+  const checked = [...document.querySelectorAll('.sks-row-chk')].filter(c => c.checked);
+  if (!checked.length) { sksToast('No rows selected', 'info'); return; }
+
+  const toAdd = checked.map(c => {
+    const idx = parseInt(c.dataset.index);
+    return { ...sksParsedRows[idx] };
+  }).filter(r => r.party || r.amount); // basic validation
+
+  if (!toAdd.length) { sksToast('Fill at least Party and Amount', 'error'); return; }
+
+  addTransactionsToKhata(toAdd);
+  sksClearResults();
+}
+
+/**
+ * addTransactionsToKhata — pushes parsed/manual transactions into the global ledger array.
+ * TODO: Connect this to your main khata ledger array and refresh your transaction list UI
+ */
+function addTransactionsToKhata(transactions) {
+  transactions.forEach(t => {
+    const entry = {
+      id:          Date.now() + Math.random(),
+      date:        t.date        || sksToday(),
+      party:       t.party       || 'Unknown',
+      description: t.desc        || t.description || '',
+      amount:      parseFloat(t.amount) || 0,
+      type:        t.type        || 'Udhaar',
+      gstin:       t.gstin       || '',
+      addedAt:     new Date().toISOString()
+    };
+    window.myKhataTransactions.push(entry);
+  });
+
+  console.log('[SmartKhataScanner] Transactions added:', transactions);
+  console.log('[SmartKhataScanner] Full ledger now:', window.myKhataTransactions);
+
+  // Refresh edit table if visible
+  if (sksCurrentMode === 'edit') sksRenderEditTable();
+
+  sksToast(`✅ ${transactions.length} transaction${transactions.length>1?'s':''} added to Khata!`, 'success');
+}
+
+function sksClearResults() {
+  document.getElementById('sks-results-area').style.display = 'none';
+  sksParsedRows = [];
+}
+
+// ─── Manual Entry ─────────────────────────────────
+function sksResetManualForm() {
+  document.getElementById('sks-m-date').value   = sksToday();
+  document.getElementById('sks-m-party').value  = '';
+  document.getElementById('sks-m-amount').value = '';
+  document.getElementById('sks-m-type').value   = 'Udhaar';
+  document.getElementById('sks-m-desc').value   = '';
+  document.getElementById('sks-m-gstin').value  = '';
+}
+
+function sksSubmitManual() {
+  const date   = document.getElementById('sks-m-date').value;
+  const party  = document.getElementById('sks-m-party').value.trim();
+  const amount = document.getElementById('sks-m-amount').value;
+  const type   = document.getElementById('sks-m-type').value;
+  const desc   = document.getElementById('sks-m-desc').value.trim();
+  const gstin  = document.getElementById('sks-m-gstin').value.trim();
+
+  if (!party)  { sksToast('Party Name is required', 'error'); document.getElementById('sks-m-party').focus();  return; }
+  if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+    sksToast('Enter a valid amount', 'error');
+    document.getElementById('sks-m-amount').focus();
+    return;
+  }
+
+  if (sksEditingIndex !== null) {
+    // Update existing
+    const entry = window.myKhataTransactions[sksEditingIndex];
+    entry.date = date; entry.party = party; entry.description = desc;
+    entry.amount = parseFloat(amount); entry.type = type; entry.gstin = gstin;
+    sksToast('✅ Transaction updated!', 'success');
+    console.log('[SmartKhataScanner] Transaction updated:', entry);
+    // TODO: Connect this to your main khata ledger array and refresh your transaction list UI
+    sksEditingIndex = null;
+    sksSetMode('edit');
+  } else {
+    addTransactionsToKhata([{ date, party, desc, amount, type, gstin }]);
+    sksResetManualForm();
+  }
+  document.getElementById('sks-m-btn-icon').textContent = '➕';
+  document.getElementById('sks-m-btn-label').textContent = 'Add to Khata';
+}
+
+function sksCancelEdit() {
+  sksEditingIndex = null;
+  if (sksCurrentMode === 'manual') { sksResetManualForm(); return; }
+  sksSetMode('edit');
+}
+
+// ─── Edit Table ───────────────────────────────────
+function sksRenderEditTable() {
+  const txns  = window.myKhataTransactions;
+  const empty = document.getElementById('sks-edit-empty');
+  const wrap  = document.getElementById('sks-edit-table-wrap');
+  const count = document.getElementById('sks-edit-count');
+
+  count.textContent = txns.length + ' entr' + (txns.length === 1 ? 'y' : 'ies');
+
+  if (!txns.length) {
+    empty.style.display = '';
+    wrap.style.display  = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.style.display  = '';
+
+  const tbody = document.getElementById('sks-edit-tbody');
+  tbody.innerHTML = '';
+
+  txns.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    const typeBadge = t.type === 'Jama'
+      ? `<span class="badge-jama">🟢 Jama</span>`
+      : `<span class="badge-udhaar">🔴 Udhaar</span>`;
+    const amt = typeof t.amount === 'number' ? t.amount.toFixed(2) : (parseFloat(t.amount)||0).toFixed(2);
+
+    tr.innerHTML = `
+      <td style="color:var(--text-muted);font-size:12px;font-weight:700;">#${i+1}</td>
+      <td style="font-family:var(--mono,'DM Mono',monospace);font-size:12.5px;">${t.date||'—'}</td>
+      <td style="font-weight:600;">${sksEsc(t.party||'—')}</td>
+      <td style="color:var(--text-secondary);font-size:12.5px;">${sksEsc(t.description||'—')}</td>
+      <td style="font-weight:800;font-size:14px;">₹${sksFormatNum(amt)}</td>
+      <td>${typeBadge}</td>
+      <td style="font-family:var(--mono,'DM Mono',monospace);font-size:11.5px;color:var(--text-muted);">${sksEsc(t.gstin||'—')}</td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="sks-btn-edit"   onclick="sksEditEntry(${i})">✏️ Edit</button>
+          <button class="sks-btn-danger" onclick="sksDeleteEntry(${i})">🗑️</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sksEditEntry(i) {
+  const t = window.myKhataTransactions[i];
+  sksEditingIndex = i;
+  // Populate manual form
+  document.getElementById('sks-m-date').value   = t.date        || sksToday();
+  document.getElementById('sks-m-party').value  = t.party       || '';
+  document.getElementById('sks-m-amount').value = t.amount      || '';
+  document.getElementById('sks-m-type').value   = t.type        || 'Udhaar';
+  document.getElementById('sks-m-desc').value   = t.description || '';
+  document.getElementById('sks-m-gstin').value  = t.gstin       || '';
+  document.getElementById('sks-m-btn-icon').textContent  = '💾';
+  document.getElementById('sks-m-btn-label').textContent = 'Save Changes';
+  sksSetMode('manual');
+  // Re-mark manual button active but keep edit conceptually active
+  document.getElementById('sks-manual-panel').style.display = '';
+  document.getElementById('sks-edit-panel').style.display   = 'none';
+  document.querySelector('[data-mode="manual"]').classList.add('active');
+  document.querySelector('[data-mode="edit"]').classList.remove('active');
+  // Scroll to form
+  document.getElementById('sks-manual-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function sksDeleteEntry(i) {
+  if (!confirm('Delete this transaction? This cannot be undone.')) return;
+  const deleted = window.myKhataTransactions.splice(i, 1)[0];
+  console.log('[SmartKhataScanner] Transaction deleted:', deleted);
+  // TODO: Connect this to your main khata ledger array and refresh your transaction list UI
+  sksToast('🗑️ Transaction deleted', 'info');
+  sksRenderEditTable();
+}
+
+// ─── Deep Analytics Dashboard ────────────────────
+function sksRenderAnalysis() {
+  // Destroy old Chart instances to prevent canvas overlap
+  if (sksChartInstances.doughnut) sksChartInstances.doughnut.destroy();
+  if (sksChartInstances.bar) sksChartInstances.bar.destroy();
+
+  const txns = window.myKhataTransactions;
+
+  // Calculate totals
+  let totalJama = 0, totalUdhaar = 0;
+  txns.forEach(t => {
+    const amt = parseFloat(t.amount) || 0;
+    if (t.type === 'Jama') totalJama += amt;
+    else totalUdhaar += amt;
+  });
+
+  const netBalance = totalJama - totalUdhaar;
+
+  // Update summary cards
+  document.getElementById('sks-total-jama').textContent = '₹' + sksFormatNum(totalJama.toFixed(2));
+  document.getElementById('sks-total-udhaar').textContent = '₹' + sksFormatNum(totalUdhaar.toFixed(2));
+  document.getElementById('sks-net-balance').textContent = '₹' + sksFormatNum(Math.abs(netBalance).toFixed(2));
+
+  // Color code net balance card
+  const balanceCard = document.getElementById('sks-net-balance-card');
+  balanceCard.classList.remove('surplus', 'deficit');
+  balanceCard.classList.add(netBalance >= 0 ? 'surplus' : 'deficit');
+
+  // Doughnut Chart
+  if (totalJama > 0 || totalUdhaar > 0) {
+    const doughnutCtx = document.getElementById('sks-doughnut-chart').getContext('2d');
+    sksChartInstances.doughnut = new Chart(doughnutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Jama (Money In)', 'Udhaar (Pending Out)'],
+        datasets: [{
+          data: [totalJama, totalUdhaar],
+          backgroundColor: ['#16a34a', '#dc2626'],
+          borderColor: ['#fff', '#fff'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { size: 12, family: 'Sora' }, padding: 15 }
+          }
+        }
+      }
+    });
+  }
+
+  // Top 5 Pending Debts (Bar Chart - grouped by party)
+  const partyTotals = {};
+  txns.forEach(t => {
+    const party = t.party || 'Unknown';
+    if (!partyTotals[party]) partyTotals[party] = 0;
+    partyTotals[party] += (t.type === 'Udhaar' ? parseFloat(t.amount) || 0 : 0);
+  });
+
+  const sortedParties = Object.entries(partyTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const barLabels = sortedParties.map(p => p[0].substring(0, 20));
+  const barData = sortedParties.map(p => p[1]);
+
+  if (barData.length > 0) {
+    const barCtx = document.getElementById('sks-bar-chart').getContext('2d');
+    sksChartInstances.bar = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: [{
+          label: 'Pending Debt (₹)',
+          data: barData,
+          backgroundColor: '#dc2626',
+          borderColor: '#991b1b',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, labels: { font: { size: 12, family: 'Sora' } } }
+        },
+        scales: {
+          x: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } }
+        }
+      }
+    });
+  }
+
+  console.log('[SmartKhataScanner] Analytics rendered', { totalJama, totalUdhaar, netBalance });
+}
+
+// ─── GST Invoice Generator ──────────────────────
+function sksGenerateInvoiceEmail() {
+  const customer = document.getElementById('sks-inv-customer').value.trim();
+  const email    = document.getElementById('sks-inv-email').value.trim();
+  const gstin    = document.getElementById('sks-inv-gstin').value.trim();
+  const desc     = document.getElementById('sks-inv-description').value.trim();
+  const baseAmt  = parseFloat(document.getElementById('sks-inv-base-amount').value) || 0;
+  const gstRate  = parseFloat(document.getElementById('sks-inv-gst-rate').value) || 0;
+
+  // Validation
+  if (!customer) { sksToast('Customer Name is required', 'error'); return; }
+  if (!email || !email.includes('@')) { sksToast('Valid Email is required', 'error'); return; }
+  if (!desc) { sksToast('Item/Service Description is required', 'error'); return; }
+  if (baseAmt <= 0) { sksToast('Base Amount must be greater than 0', 'error'); return; }
+
+  // Calculate GST and total
+  const gstAmount = (baseAmt * gstRate) / 100;
+  const totalAmount = baseAmt + gstAmount;
+
+  // Generate invoice message
+  const invoiceMessage = `
+PROFESSIONAL GST INVOICE
+═══════════════════════════════════════════════════
+
+TO:  ${customer}
+${gstin ? 'GSTIN: ' + gstin : 'No GST Registration'}
+
+─────────────────────────────────────────────────
+
+ITEM DESCRIPTION:
+${desc}
+
+─────────────────────────────────────────────────
+
+Base Amount:          ₹${sksFormatNum(baseAmt.toFixed(2))}
+GST Rate:             ${gstRate}%
+GST Amount:           ₹${sksFormatNum(gstAmount.toFixed(2))}
+
+═════════════════════════════════════════════════
+TOTAL AMOUNT DUE:    ₹${sksFormatNum(totalAmount.toFixed(2))}
+═════════════════════════════════════════════════
+
+Issued Date:          ${new Date().toLocaleDateString('en-IN')}
+Payment Terms:        Due upon receipt
+
+Thank you for your business!
+
+─────────────────────────────────────────────────
+This is an automatically generated invoice from Smart Khata Scanner
+`;
+
+  // Construct mailto link
+  const subject = `Invoice - ${customer} - ₹${sksFormatNum(totalAmount.toFixed(2))}`;
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(invoiceMessage)}`;
+
+  // Trigger email client
+  window.location.href = mailtoLink;
+
+  sksToast(`📧 Opening email client for ${email}...`, 'success');
+  console.log('[SmartKhataScanner] Invoice email generated:', { customer, email, totalAmount });
+}
+
+function sksResetInvoiceForm() {
+  document.getElementById('sks-inv-customer').value = '';
+  document.getElementById('sks-inv-email').value = '';
+  document.getElementById('sks-inv-gstin').value = '';
+  document.getElementById('sks-inv-description').value = '';
+  document.getElementById('sks-inv-base-amount').value = '';
+  document.getElementById('sks-inv-gst-rate').value = '18';
+}
+
+// ─── Toast ────────────────────────────────────────
+function sksToast(msg, type='success') {
+  // Try to use existing toast system if available
+  if (window.showToast && typeof window.showToast === 'function') {
+    try { window.showToast(msg); return; } catch(e) {}
+  }
+  const container = document.getElementById('sks-toast');
+  const el = document.createElement('div');
+  el.className = `sks-toast-msg ${type}`;
+  el.innerHTML = `<span class="sks-toast-dot"></span>${sksEsc(msg)}`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'sksToastOut 0.3s ease forwards';
+    setTimeout(() => el.remove(), 320);
+  }, 3200);
+}
+
+// ─── Utilities ────────────────────────────────────
+function sksEsc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function sksFormatNum(n) {
+  return parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ─── Init ─────────────────────────────────────────
+(function sksInit() {
+  // Set today as default date in manual form
+  document.getElementById('sks-m-date').value = sksToday();
+  // Ensure scan panel visible by default
+  sksSetMode('single');
+})();
+</script>
+
+</div>
+<!-- =============== END PREMIUM SMART KHATA SCANNER =============== -->
+
+</body>
+</html>
